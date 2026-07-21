@@ -10,8 +10,7 @@
     "verify": "pnpx tsx scripts/verify-challenges.ts",
     "prisma:studio": "pnpx prisma studio",
     "prisma:migrate": "pnpx prisma migrate dev",
-    "test:challenges": "pnpx ts-node scripts/verify-challenges.ts",
-    "seed": "tsx prisma/seed.ts"
+    "test:challenges": "pnpx ts-node scripts/verify-challenges.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
