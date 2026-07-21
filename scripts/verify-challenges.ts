@@ -264,7 +264,7 @@ async function runAllTests() {
 }
 
 // Run if this is the main module
-if (require.main === module) {
+if (import.meta.url === process.argv[1]) {
   runAllTests().catch(console.error);
 }
 
