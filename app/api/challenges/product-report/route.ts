@@ -30,16 +30,32 @@ export async function GET(request: NextRequest) {
     // Step 5: Sort by totalSold descending
     // Step 6: Return formatted response
 
+    const products = await prisma.product.findMany();
+    const productReports: ProductReport[] = [];
+
+    for (const product of products) {
+      const totalSold = await prisma.sale.aggregate({
+        where: { productId: product.id },
+        _sum: { quantity: true }
+      });
+
+      productReports.push({
+        name: product.name,
+        currentStock: product.stockQuantity,
+        totalSold: totalSold._sum.quantity || 0
+      });
+    }
+
     // Hint: Consider using:
     // - prisma.product.findMany()
     // - prisma.sale.groupBy() with _sum aggregation
     // - Or raw SQL for complex joins
 
-  
+
     // Remove this and implement:
     return NextResponse.json(
-      { error: 'Challenge 3 not implemented yet' },
-      { status: 501 }
+      { data: productReports },
+      { status: 200 }
     );
   } catch (error) {
     console.error('Challenge 3 Error:', error);

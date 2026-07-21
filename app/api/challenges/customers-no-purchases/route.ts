@@ -19,11 +19,26 @@ export async function GET(request: NextRequest) {
     // Step 2: Filter those without any sales
     // Step 3: Return the filtered list
 
+    const customers = await prisma.customer.findMany();
 
-    // Remove this and implement:
+    if (!customers || customers.length === 0) {
+      return NextResponse.json(
+        { data: 'There are no Customers!' },
+        { status: 200 }
+      );
+    }
+
+    const sales = await prisma.sale.findMany();
+    const withoutPurchases = customers.filter(customer => !sales.some(sale => sale.customerId === customer.id));
+    const result = withoutPurchases.map(customer => ({
+      id: customer.id,
+      name: customer.name,
+      email: customer.email
+    }));
+
     return NextResponse.json(
-      { error: 'Challenge 1 not implemented yet' },
-      { status: 501 }
+      { data: result },
+      { status: 200 }
     );
   } catch (error) {
     console.error('Challenge 1 Error:', error);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {prisma} from '@/lib/prisma';
- 
+import { prisma } from '@/lib/prisma';
+
 interface ConversionMetrics {
   totalLeads: number;
   convertedLeads: number;
@@ -29,16 +29,24 @@ export async function GET(request: NextRequest) {
     // Step 3: Calculate conversion rate
     // Step 4: Get average lead score
     // Step 5: Return formatted response
-    
-    // Hint: Consider using:
-    // - prisma.lead.count()
-    // - prisma.lead.findMany() with where filter
-    // - prisma.lead.aggregate() for average calculation
-  
-    // Remove this and implement:
+
+    const leads = await prisma.lead.findMany();
+    const totalLeads = leads.length;
+    const convertedLeads = leads.filter(lead => lead.status === 'Converted').length;
+    const conversionRate = totalLeads > 0 ? parseFloat(((convertedLeads / totalLeads) * 100).toFixed(2)) : 0;
+
+    const averageLeadScore = totalLeads > 0 ? parseFloat((leads.reduce((sum, lead) => sum + lead.score, 0) / totalLeads).toFixed(2)) : 0;
+
+    const response: ConversionMetrics = {
+      totalLeads,
+      convertedLeads,
+      conversionRate,
+      averageLeadScore
+    }
+
     return NextResponse.json(
-      { error: 'Challenge 4 not implemented yet' },
-      { status: 501 }
+      { data: response },
+      { status: 200 }
     );
   } catch (error) {
     console.error('Challenge 4 Error:', error);

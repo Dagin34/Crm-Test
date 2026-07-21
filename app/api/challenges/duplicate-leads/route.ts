@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {prisma} from '@/lib/prisma'; 
+import { prisma } from '@/lib/prisma';
 
 interface DuplicateLeadResult {
-  email: string;
-  leadIds: string;
+  email: string | null;
+  leadIds: string | null;
 }
 
 /**
@@ -25,18 +25,26 @@ export async function GET(request: NextRequest) {
     // Step 3: Filter for emails with count >= 2
     // Step 4: Collect the lead IDs for each email
     // Step 5: Return formatted response
+    const groupedLeads = await prisma.lead.groupBy({
+      by: ['email'],
+      _count: { id: true }
+    });
+    const filteredLeads = groupedLeads.filter(group => group._count.id >= 2 && group.email !== null);
+    const duplicateLeadResults: DuplicateLeadResult[] = [];
 
-  
-    
-    // Hint: You might want to use:
-    // - prisma.lead.groupBy()
-    // - prisma.lead.findMany()
-    // - Or raw SQL via prisma.$queryRaw
-    
-    // Remove this and implement:
+    for (const group of filteredLeads) {
+      const leads = await prisma.lead.findMany({
+        where: { email: group.email }
+      });
+      duplicateLeadResults.push({
+        email: group.email,
+        leadIds: leads.map(lead => lead.id).join(', ')
+      });
+    }
+
     return NextResponse.json(
-      { error: 'Challenge 2 not implemented yet' },
-      { status: 501 }
+      { data: duplicateLeadResults },
+      { status: 200 }
     );
   } catch (error) {
     console.error('Challenge 2 Error:', error);
